@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-    Flask app entry point.
+    Force locale with URL parameter
 """
 
 from flask import Flask, render_template, request

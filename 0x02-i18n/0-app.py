@@ -11,7 +11,9 @@ app: Flask = Flask(__name__)
 
 @app.route('/')
 def index() -> str:
-    "app Enty point"
+    """
+        App entry point
+    """
     return render_template('0-index.html')
 
 

@@ -24,7 +24,7 @@ app.config.from_object(Config)
 
 def get_locale() -> str:
     """
-        Determine the best match of supported languages. 
+        Determine the best match of supported languages.
     """
     return request.accept_languages.best_match(app.config['LANGUAGES'])
 

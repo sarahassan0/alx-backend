@@ -24,7 +24,7 @@ app.config.from_object(Config)
 babel = Babel(app)
 
 
-@babel.locale_selector
+@babel.localeselector
 def get_locale() -> str:
     """
         Determine the best match of supported languages.
@@ -32,11 +32,11 @@ def get_locale() -> str:
     locale = request.args.get('locale')
     if locale and locale in Config.LANGUAGES:
         return locale
-    else:
-        return request.accept_languages.best_match(app.config['LANGUAGES'])
+
+    return request.accept_languages.best_match(app.config['LANGUAGES'])
 
 
-@app.route('/')
+@app.route('/', strict_slashes=False)
 def index() -> str:
     """
         App entry point

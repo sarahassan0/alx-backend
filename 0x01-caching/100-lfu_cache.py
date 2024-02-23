@@ -1,35 +1,52 @@
-#!/usr/bin/python3
-"""
-LFUCache module
-"""
+#!/usr/bin/env python3
+"""Defines LFUCache class"""
 
-BaseCaching = __import__("base_caching").BaseCaching
+from base_caching import BaseCaching
 
 
 class LFUCache(BaseCaching):
-    """LFUCache class"""
+    """Implement LFUCache class"""
 
     def __init__(self):
         super().__init__()
-        self._lfu_keys = []
+        self.lfu = []
 
     def put(self, key, item):
-        """Add an item in the cache"""
-        if key is not None and item is not None:
-            if key in self.cache_data:
-                self.cache_data[key] = item
-                self._lfu_keys.pop(self._lfu_keys.index(key))
-            else:
-                if len(self.cache_data) >= BaseCaching.MAX_ITEMS:
-                    lfu = self._lfu_keys.pop(0)
-                    del self.cache_data[lfu]
-                    print(f"DISCARD: {lfu}")
-                self.cache_data[key] = item
-            self._lfu_keys.append(key)
+        """Add an item to the cache with LFU eviction policy"""
+        if key is None or item is None:
+            return
+
+        if key in self.cache_data.keys():
+            self.update_frequency_and_move_to_end(key)
+            self.cache_data[key] = item
+            return
+
+        if len(self.cache_data) >= self.MAX_ITEMS:
+            min_freq = min(self.lfu, key=lambda x: x[1])
+
+            del self.cache_data[min_freq[0]]
+            self.lfu.remove(min_freq)
+            print(f"DISCARD: {min_freq[0]}")
+
+        self.cache_data[key] = item
+        self.lfu.append((key, 1))
 
     def get(self, key):
-        """Get an item by key"""
-        if key is not None and key in self.cache_data:
-            self._lfu_keys.pop(self._lfu_keys.index(key))
-            self._lfu_keys.append(key)
-        return self.cache_data.get(key, None)
+        """Retrieve an item from the cache"""
+        value = self.cache_data.get(key)
+
+        if value:
+            self.update_frequency_and_move_to_end(key)
+
+        return value
+
+    def update_frequency_and_move_to_end(self, key):
+        """
+        Update frequency of the key and
+        move its corresponding tuple to the end
+        """
+        for i, (existing_key, frequency) in enumerate(self.lfu):
+            if existing_key == key:
+                self.lfu[i] = (key, frequency + 1)
+                self.lfu.append(self.lfu.pop(i))
+                break
